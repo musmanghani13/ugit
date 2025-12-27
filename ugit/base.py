@@ -34,6 +34,16 @@ def write_tree(directory='.'):
     return data.hash_object(tree.encode(), 'tree')
 
 
+def commit(message: str):
+    commit_object: str = ''
+
+    commit_object += f'tree\t{write_tree()}\n'
+    commit_object += '\n'
+    commit_object += f'{message}\n'
+
+    return data.hash_object(commit_object.encode(), type='commit')
+
+
 def _iter_tree_entries(object_id):
     """
         Takes an OID of a tree, tokenize it line-by-line and yield the raw string values.

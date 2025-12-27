@@ -34,6 +34,10 @@ def parse_args():
     read_tree_parser.add_argument('tree')
     read_tree_parser.set_defaults(func=read_tree)
 
+    commit_parser = commands.add_parser('commit')
+    commit_parser.add_argument('-m', '--message', required=True)
+    commit_parser.set_defaults(func=commit)
+
     return parser.parse_args()
 
 
@@ -56,6 +60,10 @@ def cat_file(args):
 def write_tree(args):
     working_directory_tree = base.write_tree()
     print(f'Saved current working directory: {os.getcwd()} with root tree hash: {working_directory_tree}')
+
+
+def commit(args):
+    print(base.commit(args.message))
 
 
 def read_tree(args):
