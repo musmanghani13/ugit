@@ -43,6 +43,10 @@ def parse_args():
     log_parser = commands.add_parser('log')
     log_parser.set_defaults(func=log)
 
+    checkout_parser = commands.add_parser('checkout')
+    checkout_parser.add_argument('object_id')   # commit hash
+    checkout_parser.set_defaults(func=checkout)
+
     return parser.parse_args()
 
 
@@ -81,5 +85,11 @@ def log(args):
         commit = base.get_commit(object_id=current_commit)
         print(f'commit {current_commit}\n')
         print(textwrap.indent(commit.message, '\t'))
+        print('\n')
+        print('---------------------------------------')
         current_commit = commit.parent
+
+
+def checkout(args):
+    base.checkout(args.object_id)
 

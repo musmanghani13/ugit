@@ -81,6 +81,12 @@ def get_commit(object_id: str) -> Commit:
     return Commit(tree=tree, parent=parent, message=message)
 
 
+def checkout(commit_id: str):
+    commit = get_commit(commit_id)
+    read_tree(commit.tree)
+    data.set_HEAD(commit_id)
+
+
 def _iter_tree_entries(object_id):
     """
         Takes an OID of a tree, tokenize it line-by-line and yield the raw string values.
