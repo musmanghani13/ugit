@@ -1,6 +1,9 @@
 import os
+from collections import namedtuple
 
 from . import data
+
+Commit = namedtuple('Commit', ['tree', 'parent', 'message'])
 
 
 def write_tree(directory='.', verbose=False):
@@ -37,18 +40,45 @@ def write_tree(directory='.', verbose=False):
 
 
 def commit(message: str, verbose=False):
+    """
+        Creates a commit object in object database with the following structure
+        
+        tree hash
+        
+        parent hash
+
+        This is the commit message!
+    """
     commit_object: str = ''
 
     commit_object += f'tree\t{write_tree(verbose=verbose)}\n'
     HEAD = data.get_HEAD()
     if HEAD:
-        commit_object += f'parent {HEAD}\n'
+        commit_object += f'parent\t{HEAD}\n'
     commit_object += '\n'
     commit_object += f'{message}\n'
 
     commit_id: str = data.hash_object(commit_object.encode(), type='commit')
     data.set_HEAD(commit_id)
     return commit_id
+
+
+def get_commit(object_id: str) -> Commit:
+    message: str = None
+    parent: str = None
+    tree: str = None
+
+    commit_object = data.get_object(object_id, expected='commit').decode()
+    lines = commit_object.splitlines()
+    for line in lines:
+        line = line.split('\t')
+        if line[0] == 'tree':
+            tree = line[1]
+        elif line[0] == 'parent':
+            parent = line[1]
+        elif len(line) == 1:
+            message = line[0]
+    return Commit(tree=tree, parent=parent, message=message)
 
 
 def _iter_tree_entries(object_id):

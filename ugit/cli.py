@@ -1,6 +1,7 @@
 import os
 import argparse
 import sys
+import textwrap
 
 from . import base
 from . import data
@@ -39,6 +40,9 @@ def parse_args():
     commit_parser.add_argument('-v', action='store_true')
     commit_parser.set_defaults(func=commit)
 
+    log_parser = commands.add_parser('log')
+    log_parser.set_defaults(func=log)
+
     return parser.parse_args()
 
 
@@ -69,4 +73,13 @@ def commit(args):
 
 def read_tree(args):
     base.read_tree(args.tree)
+
+
+def log(args):
+    current_commit = data.get_HEAD()
+    while current_commit:
+        commit = base.get_commit(object_id=current_commit)
+        print(f'commit {current_commit}\n')
+        print(textwrap.indent(commit.message, '\t'))
+        current_commit = commit.parent
 
