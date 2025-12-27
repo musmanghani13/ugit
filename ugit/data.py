@@ -10,12 +10,12 @@ def init() -> None:
     os.makedirs(f'{UGIT_DIR}/objects')
 
 
-def hash_object(file_contents, type='blob') -> str:
+def hash_object(data, type='blob') -> str:
     """
         Generates and returns hash based on content and type of the file using SHA-1,
         also saves the file at .ugit/objects/hash_of_file.
     """
-    type_and_contents = type.encode() + b'\x00' + file_contents
+    type_and_contents = type.encode() + b'\x00' + data
     object_id = hashlib.sha1(type_and_contents).hexdigest()
     with open(f'{UGIT_DIR}/objects/{object_id}', 'wb') as out:
         out.write(type_and_contents)
@@ -24,13 +24,13 @@ def hash_object(file_contents, type='blob') -> str:
 
 def get_object(object_id, expected='blob') -> bytes:
     """
-        Return bytes of file stored in Object database with object_id hash.
+        Return bytes of data stored in Object database with object_id hash.
     """
-    with open(f'{UGIT_DIR}/objects/{object_id}', 'rb') as stored_file:
-        obj = stored_file.read()
-    object_type, _, file_contents = obj.partition(b'\x00')
+    with open(f'{UGIT_DIR}/objects/{object_id}', 'rb') as stored_data:
+        obj = stored_data.read()
+    object_type, _, data = obj.partition(b'\x00')
     object_type = object_type.decode()
     if expected is not None:
         assert object_type == expected, f'Expected type {expected}, but got {object_type}'
-    return file_contents
+    return data     # in case of tree, this data will be the file files inside the directory with object_id passed. As saved on line 31 base.py write_tree function
 
