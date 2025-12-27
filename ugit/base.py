@@ -40,10 +40,15 @@ def commit(message: str, verbose=False):
     commit_object: str = ''
 
     commit_object += f'tree\t{write_tree(verbose=verbose)}\n'
+    HEAD = data.get_HEAD()
+    if HEAD:
+        commit_object += f'parent {HEAD}\n'
     commit_object += '\n'
     commit_object += f'{message}\n'
 
-    return data.hash_object(commit_object.encode(), type='commit')
+    commit_id: str = data.hash_object(commit_object.encode(), type='commit')
+    data.set_HEAD(commit_id)
+    return commit_id
 
 
 def _iter_tree_entries(object_id):

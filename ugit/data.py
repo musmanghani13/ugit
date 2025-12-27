@@ -34,3 +34,17 @@ def get_object(object_id, expected='blob') -> bytes:
         assert object_type == expected, f'Expected type {expected}, but got {object_type}'
     return data     # in case of tree, this data will be the file files inside the directory with object_id passed. As saved on line 31 base.py write_tree function
 
+
+def set_HEAD(object_id: str):
+    """
+        Moves the HEAD pointer to the latest commit.
+    """
+    with open(f'{UGIT_DIR}/HEAD', 'w') as head_pointer_file:
+        head_pointer_file.write(object_id)
+
+
+def get_HEAD() -> str:
+    if os.path.isfile(f'{UGIT_DIR}/HEAD'):  # we need this check because first commit of our project will have no HEAD pointer file created.
+        with open(f'{UGIT_DIR}/HEAD') as head_pointer_file:
+            return head_pointer_file.read().strip()
+
