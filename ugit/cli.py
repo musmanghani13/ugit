@@ -36,6 +36,7 @@ def parse_args():
 
     commit_parser = commands.add_parser('commit')
     commit_parser.add_argument('-m', '--message', required=True)
+    commit_parser.add_argument('-v', action='store_true')
     commit_parser.set_defaults(func=commit)
 
     return parser.parse_args()
@@ -63,7 +64,7 @@ def write_tree(args):
 
 
 def commit(args):
-    print(base.commit(args.message))
+    print(f'Commit id: {base.commit(args.message, args.v)}')
 
 
 def read_tree(args):

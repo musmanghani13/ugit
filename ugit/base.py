@@ -3,7 +3,7 @@ import os
 from . import data
 
 
-def write_tree(directory='.'):
+def write_tree(directory='.', verbose=False):
     """ 
         This command will take the current working directory and store it to the object database recursively.
         If hash-object was for storing an individual file, then write-tree is for storing a whole directory.
@@ -20,12 +20,14 @@ def write_tree(directory='.'):
                 _type = 'blob'
                 with open(location, 'rb') as f:
                     stored_object_id = data.hash_object(f.read(), type='blob')
-                    print(f'blob\t{stored_object_id}\t{location}')
+                    if verbose:
+                        print(f'blob\t{stored_object_id}\t{location}')
             elif entry.is_dir (follow_symlinks=False):
                 # found a directory, so we save this as 'tree <hash> dir_name'
                 _type = 'tree'
-                stored_object_id = write_tree(location) # move inside the folder and look for files.
-                print(f'tree\t{stored_object_id}\t{location}')
+                stored_object_id = write_tree(location, verbose) # move inside the folder and look for files.
+                if verbose:
+                    print(f'tree\t{stored_object_id}\t{location}')
             entries.append((entry.name, stored_object_id, _type))
     tree = ''.join(
         f'{o_type} {oid} {o_name}\n'    # string of files inside a directory
@@ -34,10 +36,10 @@ def write_tree(directory='.'):
     return data.hash_object(tree.encode(), 'tree')
 
 
-def commit(message: str):
+def commit(message: str, verbose=False):
     commit_object: str = ''
 
-    commit_object += f'tree\t{write_tree()}\n'
+    commit_object += f'tree\t{write_tree(verbose=verbose)}\n'
     commit_object += '\n'
     commit_object += f'{message}\n'
 
