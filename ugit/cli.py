@@ -47,6 +47,11 @@ def parse_args():
     checkout_parser.add_argument('object_id')   # commit hash
     checkout_parser.set_defaults(func=checkout)
 
+    tag_parser = commands.add_parser('tag')
+    tag_parser.add_argument('tag')
+    tag_parser.add_argument('oid', nargs='?')
+    tag_parser.set_defaults(func=tag)
+
     return parser.parse_args()
 
 
@@ -80,7 +85,7 @@ def read_tree(args):
 
 
 def log(args):
-    current_commit = data.get_HEAD()
+    current_commit: str = data.get_ref('HEAD')
     while current_commit:
         commit = base.get_commit(object_id=current_commit)
         print(f'commit {current_commit}\n')
@@ -92,4 +97,10 @@ def log(args):
 
 def checkout(args):
     base.checkout(args.object_id)
+
+
+def tag(args):
+    tag_name: str = args.tag
+    oid: str = args.oid or data.get_ref('HEAD')
+    base.create_tag(tag=tag_name, oid=oid)
 

@@ -52,14 +52,14 @@ def commit(message: str, verbose=False):
     commit_object: str = ''
 
     commit_object += f'tree\t{write_tree(verbose=verbose)}\n'
-    HEAD = data.get_HEAD()
+    HEAD = data.get_ref('HEAD')
     if HEAD:
         commit_object += f'parent\t{HEAD}\n'
     commit_object += '\n'
     commit_object += f'{message}\n'
 
     commit_id: str = data.hash_object(commit_object.encode(), type='commit')
-    data.set_HEAD(commit_id)
+    data.set_ref('HEAD', commit_id)
     return commit_id
 
 
@@ -84,7 +84,11 @@ def get_commit(object_id: str) -> Commit:
 def checkout(commit_id: str):
     commit = get_commit(commit_id)
     read_tree(commit.tree)
-    data.set_HEAD(commit_id)
+    data.set_ref('HEAD', commit_id)
+
+
+def create_tag(tag: str, oid: str) -> None:
+    data.set_ref(ref=f'refs/tags/{tag}', commit_id=oid)
 
 
 def _iter_tree_entries(object_id):

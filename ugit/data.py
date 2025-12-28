@@ -35,16 +35,24 @@ def get_object(object_id, expected='blob') -> bytes:
     return data     # in case of tree, this data will be the file files inside the directory with object_id passed. As saved on line 31 base.py write_tree function
 
 
-def set_HEAD(object_id: str):
+def set_ref(ref: str, commit_id: str) -> None:
     """
-        Moves the HEAD pointer to the latest commit.
+        Associates a commit id to a ref.
+        Value of ref can be a user defined value of HEAD. Depending on
+        the context this function is called.
     """
-    with open(f'{UGIT_DIR}/HEAD', 'w') as head_pointer_file:
-        head_pointer_file.write(object_id)
+    ref_path = f'{UGIT_DIR}/{ref}'
+    os.makedirs(os.path.dirname(ref_path), exist_ok=True)
+    with open(ref_path, 'w') as f:
+        f.write(commit_id)
 
 
-def get_HEAD() -> str:
-    if os.path.isfile(f'{UGIT_DIR}/HEAD'):  # we need this check because first commit of our project will have no HEAD pointer file created.
-        with open(f'{UGIT_DIR}/HEAD') as head_pointer_file:
-            return head_pointer_file.read().strip()
+def get_ref(ref: str) -> str:
+    """
+        Returns the commit id associated with a ref.
+    """
+    ref_path: str = f'{UGIT_DIR}/{ref}'
+    if os.path.isfile(ref_path):
+        with open(ref_path, 'r') as ref_file:
+            return ref_file.read().strip()
 
